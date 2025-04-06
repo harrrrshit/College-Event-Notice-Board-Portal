@@ -1,0 +1,10 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Instance folder (contains database, secrets, etc.)
+instance/
+
+# Virtual environment (already handled by venv/.gitignore in Py 3.13+, but good to have)
+venv/
