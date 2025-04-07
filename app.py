@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, render_template # Added render_template
 from flask_sqlalchemy import SQLAlchemy # Added import
 from flask_migrate import Migrate # Added import
 
@@ -113,8 +113,11 @@ class MediaFile(db.Model):
 @app.route('/')
 def index():
     # This function runs when someone visits the homepage
-    # It returns a simple string for now
-    return "Welcome to the College Event & Notice Board Portal!"
+    # Define the text we want to display in the heading
+    welcome_heading = "Welcome to the College Event & Notice Board Portal!"
+    # Render the index.html template, passing the heading text
+    # The keyword 'heading' here MUST match the variable name {{ heading }} in the HTML
+    return render_template('index.html', heading=welcome_heading)
 
 # This block ensures the server only runs when the script is executed directly
 # (not when imported as a module) and enables debugging mode
