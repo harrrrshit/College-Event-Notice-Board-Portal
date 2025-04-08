@@ -8,3 +8,6 @@ instance/
 
 # Virtual environment (already handled by venv/.gitignore in Py 3.13+, but good to have)
 venv/
+
+# Config file (contains secret key, etc.)
+config.py

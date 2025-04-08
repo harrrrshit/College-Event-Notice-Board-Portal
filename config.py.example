@@ -1,0 +1,19 @@
+import os
+
+# Set a secret key for session management and CSRF protection
+# IMPORTANT: Replace 'a-very-secret-key-that-is-hard-to-guess' with your own complex key!
+# In a real app, you'd load this from an environment variable or config file.
+SECRET_KEY = 'YOUR_SECRET_KEY_GOES_HERE'
+
+# Database Configuration
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+# Configure the database URI for SQLite.
+# 'sqlite:///college_board.db' means: use SQLite, and the database file
+# named 'college_board.db' will be located in the i directory as app.py.
+SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(basedir, 'instance', 'college_board.db')
+
+# Disable a feature that tracks object modifications and emits signals.
+# This is generally recommended to be False as it consumes extra memory
+# and we don't need it for this project.
+SQLALCHEMY_TRACK_MODIFICATIONS = False

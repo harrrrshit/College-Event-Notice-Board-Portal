@@ -1,0 +1,47 @@
+{% extends "base.html" %} {# Use base.html layout #}
+
+{# Set the page title #}
+{% block title %}{{ title }} - College Portal{% endblock %}
+
+{# Main content for the login page #}
+{% block content %}
+    <h1>{{ title }}</h1>
+
+    {# Limit form width on medium screens and up #}
+    <form action="" method="post" novalidate class="col-md-6">
+        {{ form.hidden_tag() }} <!-- CSRF protection token -->
+
+        {# Username or Email Field with Bootstrap styling #}
+        <div class="mb-3"> {# Margin bottom 3 #}
+            {{ form.username_or_email.label(class="form-label") }} {# Bootstrap label style #}
+            {# Bootstrap input style #}
+            {{ form.username_or_email(class="form-control", size=32) }}
+            {# Display errors #}
+            {% for error in form.username_or_email.errors %}
+            <span class="text-danger small">[{{ error }}]</span> {# Bootstrap error text style #}
+            {% endfor %}
+        </div>
+
+        {# Password Field with Bootstrap styling #}
+        <div class="mb-3">
+            {{ form.password.label(class="form-label") }}
+            {{ form.password(class="form-control", size=32) }}
+            {% for error in form.password.errors %}
+            <span class="text-danger small">[{{ error }}]</span>
+            {% endfor %}
+        </div>
+
+        {# Remember Me Checkbox with Bootstrap styling #}
+        <div class="mb-3 form-check">
+            {{ form.remember(class="form-check-input") }}
+            {{ form.remember.label(class="form-check-label") }}
+        </div>
+
+        {# Submit Button with Bootstrap styling #}
+        <div class="mb-3">
+            {{ form.submit(class="btn btn-primary") }} {# Bootstrap button style #}
+        </div>
+    </form>
+
+    <p>New User? <a href="{{ url_for('register') }}">Click to Register!</a></p>
+{% endblock %} {# End of content block #}

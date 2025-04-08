@@ -1,17 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>College Portal</title>
-    <!-- We can add CSS links here later -->
-</head>
-<body>
+{% extends "base.html" %} {# Tells Jinja to use base.html as the layout #}
 
-    <h1>{{ heading }}</h1>
+{# Define the content for the title block in base.html #}
+{% block title %}Home - College Portal{% endblock %}
 
-    <p>This is the homepage of the College Event & Notice Board Portal.</p>
-    <!-- More content will go here -->
+{# Define the content for the content block in base.html #}
+{% block content %}
+    {# Use Bootstrap display heading class #}
+    <h1 class="display-5">{{ heading }}</h1>
+    <p class="lead">This is the homepage of the College Event & Notice Board Portal.</p>
+    {# Add more homepage-specific content here later #}
 
-</body>
-</html>
+    {# Example: Show username if logged in #}
+    {% if current_user.is_authenticated %}
+        <p>You are logged in as {{ current_user.username }}.</p>
+    {% endif %}
+{% endblock %} {# End of the content block #}

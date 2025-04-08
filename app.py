@@ -1,125 +1,175 @@
-from flask import Flask, render_template # Added render_template
+from flask import Flask, render_template, flash, redirect, url_for, request, abort # Added render_template # Added flash, redirect, url_for, request # Add abort
 from flask_sqlalchemy import SQLAlchemy # Added import
 from flask_migrate import Migrate # Added import
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required # Add this # Add login_user, logout_user, current_user, login_required
+from urllib.parse import urlparse, urljoin # Import for parsing the 'next' URL safely
+from sqlalchemy import or_ # Import the 'or_' function
+from functools import wraps
 
-# Create an instance of the Flask application
-app = Flask(__name__)
+# Create Extension Instances (BEFORE app creation)
+# We create them here but don't associate them with an app yet
+# Create the SQLAlchemy database extension instance, but not linking it with our Flask app
+db = SQLAlchemy()
+# Create Flask-Migrate
+migrate = Migrate()
+# Create Flask-Login
+login_manager = LoginManager()
+# Tell Flask-Login which route handles logins
+# 'login' is the FUNCTION NAME of the route we will create later
+login_manager.login_view = 'login' # Name of the login route function
+# Optional: Customize the message flashed when users need to log in
+login_manager.login_message = 'Please log in to access this page.'
+login_manager.login_message_category = 'info' # Bootstrap category for styling
 
-# Configure the database URI for SQLite.
-# 'sqlite:///college_board.db' means: use SQLite, and the database file
-# named 'college_board.db' will be located in the same directory as app.py.
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///college_board.db'
+# Application Factory Function (Optional but good practice)
+# Or just create the app directly if you prefer for now
+def create_app(): # Start of factory pattern
+    app = Flask(__name__) # Create an instance of the Flask application
 
-# Disable a feature that tracks object modifications and emits signals.
-# This is generally recommended to be False as it consumes extra memory
-# and we don't need it for this project.
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    # Load configuration from config.py
+    app.config.from_pyfile('config.py')
 
-# Create the SQLAlchemy database extension instance, linking it with our Flask app
-db = SQLAlchemy(app) # Added initialization
+    # Initialize Extensions with the App
+    # Now we associate the extensions with our created app instance
+    db.init_app(app) # Added initialization
+    migrate.init_app(app, db) # Added initialization # Migrate needs both app and db
+    login_manager.init_app(app) # Added initialization # Configure it for our app
 
-# Initialize Flask-Migrate
-migrate = Migrate(app, db) # Added initialization
+    # Import models AFTER db and login_manager have been initialized
+    # This import order is now safe because db exists before models.py tries to import it
+    from models import User, Department, Notice, Event, MediaFile
 
-# Define the User model (represents the 'user' table in the database)
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True) # Primary key column
-    username = db.Column(db.String(35), unique=True, nullable=False) # Username, must be unique and not empty
-    email = db.Column(db.String(120), unique=True, nullable=False) # Email, must be unique and not empty
-    password_hash = db.Column(db.String(128)) # Stores the hashed password (length depends on hashing algorithm)
-    role = db.Column(db.String(20), default='student', nullable=False) # User role ('student', 'poster', 'admin'), defaults to 'student'
-    # Foreign key to link to the Department table (optional, hence nullable=True)
-    # 'department.id' refers to the 'id' column in the 'department' table (which we'll define later)
-    department_id = db.Column(db.Integer, db.ForeignKey('department.id'), nullable=True)
+    # Define user_loader (AFTER login_manager and User model are known)
+    @login_manager.user_loader
+    def load_user(user_id):
+        """Callback function to load a user from the user ID stored in the session."""
+        # user_id is stored as a string in the session, so convert to int for query
+        return User.query.get(int(user_id))
 
-    # Define relationships (these don't create columns in the User table itself)
-    # 'Notice' refers to the Notice class (we'll define later)
-    # backref='poster' creates a virtual 'publisher' attribute on the Notice model to easily get the user who posted it
-    # lazy=True means SQLAlchemy will load the related notices only when explicitly asked for
-    notices = db.relationship('Notice', backref='publisher', lazy=True)
-    # Similar relationship for Events
-    events = db.relationship('Event', backref='organizer', lazy=True)
+    # Role-Based Decorators
+    def admin_required(f):
+        """Decorator to ensure user is logged in and is an admin."""
+        @wraps(f) # Preserves original function metadata
+        def decorated_function(*args, **kwargs):
+            # Check if user is logged in AND if they have the admin role
+            if not current_user.is_authenticated or not current_user.is_admin():
+                abort(403) # Forbidden access
+            # If checks pass, execute the original route function
+            return f(*args, **kwargs)
+        return decorated_function
 
-    # Optional: Define how User objects should be represented as strings (useful for debugging)
-    def __repr__(self):
-        return f'<User {self.username}>'
+    def publisher_required(f):
+        """Decorator to ensure user is logged in and is a publisher OR an admin."""
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            # Check if user is logged in
+            if not current_user.is_authenticated:
+                abort(403) # Forbidden access if not logged in
+            # Allow access if user is a publisher OR an admin
+            # Uses the helper methods we defined in the User model
+            if not current_user.is_publisher() and not current_user.is_admin():
+                abort(403) # Forbidden access if not publisher or admin
+            # If checks pass, execute the original route function
+            return f(*args, **kwargs)
+        return decorated_function
 
-# Define the Department model (optional, but useful for organization)
-class Department(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), unique=True, nullable=False)
+    from forms import LoginForm, RegistrationForm # Import your form and model # Add RegistrationForm
 
-    # Relationships: A department can have multiple users, notices, and events
-    # The 'department' backref allows access from User, Notice, Event objects (e.g., user.department)
-    users = db.relationship('User', backref='department', lazy=True)
-    notices = db.relationship('Notice', backref='department', lazy=True)
-    events = db.relationship('Event', backref='department', lazy=True)
+    # Define a route for the homepage URL ('/')
+    @app.route('/')
+    def index():
+        # This function runs when someone visits the homepage
+        # Define the text we want to display in the heading
+        welcome_heading = "Welcome to the College Event & Notice Board Portal!"
+        # Render the index.html template, passing the heading text
+        # The keyword 'heading' here MUST match the variable name {{ heading }} in the HTML
+        return render_template('index.html', heading=welcome_heading)
 
-    def __repr__(self):
-        return f'<Department {self.name}>'
+    # Define a route for the login page URL ('/login')
+    @app.route('/login', methods=['GET', 'POST'])
+    def login():
+        """Handles user login."""
+        # If user is already logged in, redirect to homepage
+        if current_user.is_authenticated:
+            return redirect(url_for('index'))
 
-# Define the Notice model
-class Notice(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    content = db.Column(db.Text, nullable=False) # Use db.Text for potentially long content
-    # Use db.func.now() for a database-generated default timestamp
-    issue_date = db.Column(db.DateTime, nullable=False, default=db.func.now())
-    # Foreign key linking to the User who published the notice
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    # Foreign key linking to the Department (optional)
-    department_id = db.Column(db.Integer, db.ForeignKey('department.id'), nullable=True)
-    # Relationship to potentially multiple media files
-    # Added `cascade` option: This tells the database that if a Notice is deleted, all its associated MediaFile records should also be deleted automatically, which is usually desired.)
-    media_files = db.relationship('MediaFile', backref='notice', lazy=True, cascade="all, delete-orphan")
+        form = LoginForm() # Instantiate the form from forms.py
+        if form.validate_on_submit(): # This runs only on POST requests where data is valid
+            # Get the identifier entered by the user (could be username or email)
+            identifier = form.username_or_email.data # Use the new field name
 
-    def __repr__(self):
-        return f'<Notice {self.title}>'
+            # Query the database: find user where username OR email matches the identifier
+            user = User.query.filter(or_(User.username == identifier, User.email == identifier)).first()
 
-# Define the Event model
-class Event(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    event_date = db.Column(db.DateTime, nullable=False) # Date and time of the event
-    venue = db.Column(db.String(100), nullable=False)
-    category = db.Column(db.String(50), nullable=True) # Optional category
-    # Foreign key linking to the User who organized the event
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    # Foreign key linking to the Department (optional)
-    department_id = db.Column(db.Integer, db.ForeignKey('department.id'), nullable=True)
-    # Relationship to potentially multiple media files
-    # Added `cascade` option: This tells the database that if a Notice is deleted, all its associated MediaFile records should also be deleted automatically, which is usually desired.)
-    media_files = db.relationship('MediaFile', backref='event', lazy=True, cascade="all, delete-orphan")
+            # Check if user exists and password is correct
+            if user and user.check_password(form.password.data):
+                # Log the user in using Flask-Login's function
+                login_user(user, remember=form.remember.data)
+                flash('Logged in successfully!', 'success') # Optional success message
 
-    def __repr__(self):
-        return f'<Event {self.title}>'
+                # --- Redirect Logic ---
+                # Get the URL the user was trying to access (if any)
+                next_page = request.args.get('next')
+                # Security check: Ensure next_page is a relative path within our site
+                if not next_page or urlparse(next_page).netloc != '':
+                    next_page = url_for('index') # Default to index if no next_page or it's external
 
-# Define the MediaFile model
-class MediaFile(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    filename = db.Column(db.String(200), nullable=False)
-    # We could add a type later if needed ('image', 'video')
-    # media_type = db.Column(db.String(20), nullable=False)
+                # Check if the next_page is safe (optional but recommended)
+                # This prevents open redirect vulnerabilities
+                # You might need to adjust this check based on your specific needs
+                # For now, we assume relative paths starting with '/' are safe
+                if not next_page.startswith('/'):
+                     next_page = url_for('index') # Fallback to index if unsure
 
-    # Foreign Key to link back to the Notice & Event it belongs to
-    notice_id = db.Column(db.Integer, db.ForeignKey('notice.id'), nullable=True)
-    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=True)
+                return redirect(next_page)
+            else:
+                # Invalid credentials
+                flash('Invalid email or password. Please try again.', 'danger')
+                # No redirect here, will re-render the login template below
 
-    def __repr__(self):
-        return f'<MediaFile {self.filename}>'
+        # If it's a GET request or form validation failed, display the login form
+        return render_template('login.html', title='Sign In', form=form)
 
-# Define a route for the homepage URL ('/')
-@app.route('/')
-def index():
-    # This function runs when someone visits the homepage
-    # Define the text we want to display in the heading
-    welcome_heading = "Welcome to the College Event & Notice Board Portal!"
-    # Render the index.html template, passing the heading text
-    # The keyword 'heading' here MUST match the variable name {{ heading }} in the HTML
-    return render_template('index.html', heading=welcome_heading)
+    # Define a route for the logout page URL ('/logout')
+    @app.route('/logout')
+    # @login_required # Ensure only logged-in users can access this # Commented out logout route decorator
+    def logout():
+        """Logs the current user out."""
+        logout_user() # Flask-Login function to clear the session
+        flash('You have been logged out.', 'info') # Optional message
+        return redirect(url_for('index')) # Redirect to homepage
 
+    # Define a route for the registration page URL ('/register')
+    @app.route('/register', methods=['GET', 'POST'])
+    def register():
+        """Handles user registration."""
+        # If user is already logged in, redirect them away
+        if current_user.is_authenticated:
+            return redirect(url_for('index'))
+
+        form = RegistrationForm() # Instantiate the registration form
+        if form.validate_on_submit(): # Runs on POST if validators (including custom ones) pass
+            # Create a new User object (role defaults to 'student' if not included in form)
+            user = User(username=form.username.data, email=form.email.data)
+            # Set the password using the method that handles hashing
+            user.set_password(form.password.data)
+            # Add the new user object to the database session
+            db.session.add(user)
+            # Commit the session to save the user permanently
+            db.session.commit()
+            # Flash a success message
+            flash('Congratulations, you are now a registered user! Please log in.', 'success')
+            # Redirect the new user to the login page
+            return redirect(url_for('login'))
+
+        # If it's a GET request or validation failed, render the registration template
+        return render_template('register.html', title='Register', form=form)
+
+    return app # End of factory pattern (if using create_app function)
+
+# Main execution
 # This block ensures the server only runs when the script is executed directly
 # (not when imported as a module) and enables debugging mode
 if __name__ == '__main__':
-    app.run(debug=True)
+    app = create_app() # Call the factory function to get the app instance
+    app.run(debug=True) # Now run the created app instance # Debug=True is fine for development
