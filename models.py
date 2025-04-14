@@ -1,6 +1,7 @@
 from app import db # Import the db instance from app.py
 from werkzeug.security import generate_password_hash, check_password_hash # Import the functions needed to hash and check passwords securely.
 from flask_login import UserMixin # Import the necessary tools for user session management.
+from sqlalchemy.sql import func # Import func for onupdate/default timestamps
 
 # Define the User model (represents the 'user' table in the database)
 class User(db.Model, UserMixin): # Added UserMixin inheritance
@@ -17,9 +18,18 @@ class User(db.Model, UserMixin): # Added UserMixin inheritance
     # 'Notice' refers to the Notice class (we'll define later)
     # backref='poster' creates a virtual 'publisher' attribute on the Notice model to easily get the user who posted it
     # lazy=True means SQLAlchemy will load the related notices only when explicitly asked for
-    notices = db.relationship('Notice', backref='publisher', lazy=True)
-    # Similar relationship for Events
-    events = db.relationship('Event', backref='organizer', lazy=True)
+    # Tell SQLAlchemy to use Notice.user_id for this relationship
+    notices = db.relationship('Notice', foreign_keys='Notice.user_id', backref='publisher', lazy=True)
+    # Tell SQLAlchemy to use Event.user_id for this relationship
+    events = db.relationship('Event', foreign_keys='Event.user_id', backref='organizer', lazy=True)
+
+    # --- Relationships for edited items (Optional but good practice) ---
+    # If you want to easily find all notices/events edited by a user, define these too.
+    # Use the Notice.last_edited_by_id column here.
+    # Use backref with a different name to avoid conflicts (e.g., 'last_editor_notice')
+    # Use lazy='dynamic' if you expect potentially large numbers of edited items
+    edited_notices = db.relationship('Notice', foreign_keys='Notice.last_edited_by_id', backref='last_editor', lazy='dynamic')
+    edited_events = db.relationship('Event', foreign_keys='Event.last_edited_by_id', backref='last_editor', lazy='dynamic') # Corrected backref name
 
     # --- Password Hashing Methods ---
     def set_password(self, password):
@@ -73,6 +83,10 @@ class Notice(db.Model):
     # Relationship to potentially multiple media files
     # Added `cascade` option: This tells the database that if a Notice is deleted, all its associated MediaFile records should also be deleted automatically, which is usually desired.)
     media_files = db.relationship('MediaFile', backref='notice', lazy=True, cascade="all, delete-orphan")
+    # For tracking edits
+    last_edited_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True)
+    # Use func.now() for database-side timestamp on update
+    last_edited_timestamp = db.Column(db.DateTime, nullable=True, onupdate=func.now())
 
     def __repr__(self):
         return f'<Notice {self.title}>'
@@ -92,6 +106,8 @@ class Event(db.Model):
     # Relationship to potentially multiple media files
     # Added `cascade` option: This tells the database that if a Notice is deleted, all its associated MediaFile records should also be deleted automatically, which is usually desired.)
     media_files = db.relationship('MediaFile', backref='event', lazy=True, cascade="all, delete-orphan")
+    last_edited_by_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=True) # For tracking edits
+    last_edited_timestamp = db.Column(db.DateTime, nullable=True, onupdate=func.now()) # Use func.now() for database-side timestamp on update
 
     def __repr__(self):
         return f'<Event {self.title}>'

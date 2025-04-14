@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} - College Portal{% endblock %}
+
+{% block content %}
+    {# Use the legend variable passed from the route #}
+    <h1>{{ legend }}</h1>
+
+    {# Limit form width #}
+    <form method="POST" action="" novalidate class="col-md-8">
+        {{ form.hidden_tag() }} {# CSRF Token #}
+
+        {# Title Field #}
+        <div class="mb-3">
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class="form-control" + (" is-invalid" if form.title.errors else "")) }} {# Add is-invalid class if errors #}
+            {% if form.title.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.title.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        {# Content Field #}
+        <div class="mb-3">
+            {{ form.content.label(class="form-label") }}
+            {# Use rows attribute for TextArea #}
+            {{ form.content(class="form-control" + (" is-invalid" if form.content.errors else ""), rows=10) }}
+            {% if form.content.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.content.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        {# Department Field #}
+        <div class="mb-3">
+            {{ form.department_id.label(class="form-label") }}
+            {# Use form-select for dropdowns #}
+            {{ form.department_id(class="form-select" + (" is-invalid" if form.department_id.errors else "")) }}
+            {% if form.department_id.errors %}
+                <div class="invalid-feedback">
+                    {% for error in form.department_id.errors %}
+                        <span>{{ error }}</span>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        </div>
+
+        {# Submit Button #}
+        <div class="mb-3">
+            {{ form.submit(class="btn btn-primary") }}
+            <a href="{{ url_for('notice.notice_list') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+{% endblock %}

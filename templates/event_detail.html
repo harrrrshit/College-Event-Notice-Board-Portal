@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ event.title }} - College Portal{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h1 class="mb-0">{{ event.title }}</h1>
+        <div>
+            {# Show Edit/Delete buttons only to original organizer or admin #}
+            {% if current_user.is_authenticated and (event.user_id == current_user.id or current_user.is_admin()) %}
+                <a href="{{ url_for('event.event_edit', event_id=event.id) }}" class="btn btn-sm btn-secondary">Edit</a>
+                {# Delete button triggers a confirmation modal #}
+                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteEventModal">
+                    Delete
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        <p class="card-subtitle mb-2 text-muted">
+            Date & Time: {{ event.event_date.strftime('%Y-%m-%d %H:%M') }} | Venue: {{ event.venue }} | Category: {{ event.category }}
+            <br>
+            Organized by: {{ event.organizer.username }}
+            {% if event.department %}
+            | Department: {{ event.department.name }}
+            {% endif %}
+            {# Display last edited info if applicable #}
+            {% if event.last_editor %}
+                <br><em>Last edited on: {{ event.last_edited_timestamp.strftime('%Y-%m-%d %H:%M') }} by {{ event.last_editor.username }}</em>
+            {% endif %}
+        </p>
+        <hr>
+        {# Render description as Markdown #}
+        <div class="event-description">
+            <h5>Description:</h5>
+            {{ event.description | markdown }}
+        </div>
+
+        {# Placeholder for displaying media files later #}
+        {# {% if event.media_files %} ... {% endif %} #}
+
+    </div>
+</div>
+
+<a href="{{ url_for('event.event_list') }}" class="btn btn-outline-secondary">Back to Events</a>
+
+{# Delete Confirmation Modal (Bootstrap) - Include only if delete button exists #}
+{% if current_user.is_authenticated and (event.user_id == current_user.id or current_user.is_admin()) %}
+<div class="modal fade" id="deleteEventModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete the event titled "{{ event.title }}"? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        {# Form submits the POST request to the delete route #}
+        <form action="{{ url_for('event.event_delete', event_id=event.id) }}" method="POST" style="display: inline;">
+            <button type="submit" class="btn btn-danger">Delete Event</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

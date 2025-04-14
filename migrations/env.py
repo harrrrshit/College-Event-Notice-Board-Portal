@@ -1,9 +1,8 @@
 import logging
 from logging.config import fileConfig
-
 from flask import current_app
-
 from alembic import context
+from sqlalchemy import MetaData
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -44,12 +43,20 @@ target_db = current_app.extensions['migrate'].db
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
 
-
 def get_metadata():
     if hasattr(target_db, 'metadatas'):
         return target_db.metadatas[None]
     return target_db.metadata
 
+# Define naming convention for constraints
+# This helps Alembic automatically name constraints, especially needed for SQLite batch mode
+naming_convention = {
+    "ix": "ix_%(column_0_label)s",
+    "uq": "uq_%(table_name)s_%(column_0_name)s",
+    "ck": "ck_%(table_name)s_%(constraint_name)s",
+    "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    "pk": "pk_%(table_name)s"
+}
 
 def run_migrations_offline():
     """Run migrations in 'offline' mode.
@@ -70,7 +77,6 @@ def run_migrations_offline():
 
     with context.begin_transaction():
         context.run_migrations()
-
 
 def run_migrations_online():
     """Run migrations in 'online' mode.
@@ -100,7 +106,8 @@ def run_migrations_online():
         context.configure(
             connection=connection,
             target_metadata=get_metadata(),
-            **conf_args
+            naming_convention=naming_convention,
+            **conf_args,
         )
 
         with context.begin_transaction():

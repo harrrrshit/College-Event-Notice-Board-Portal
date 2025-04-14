@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block title %}{{ notice.title }} - College Portal{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h1 class="mb-0">{{ notice.title }}</h1>
+        <div>
+            {# Show Edit/Delete buttons only to original publisher or admin #}
+            {% if current_user.is_authenticated and (notice.user_id == current_user.id or current_user.is_admin()) %}
+                <a href="{{ url_for('notice.notice_edit', notice_id=notice.id) }}" class="btn btn-sm btn-secondary">Edit</a>
+                {# Delete button triggers a confirmation modal #}
+                <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteNoticeModal">
+                    Delete
+                </button>
+            {% endif %}
+        </div>
+    </div>
+    <div class="card-body">
+        <p class="card-subtitle mb-2 text-muted">
+            Posted on: {{ notice.issue_date.strftime('%Y-%m-%d %H:%M') }} by {{ notice.publisher.username }}
+            {% if notice.department %}
+            | Department: {{ notice.department.name }}
+            {% endif %}
+            {% if notice.last_editor %}
+                <br><em>Last edited on: {{ notice.last_edited_timestamp.strftime('%Y-%m-%d %H:%M') }} by {{ notice.last_editor.username }}</em>
+            {% endif %}
+        </p>
+        <hr>
+        {# Use the 'safe' filter if your content might contain HTML you want rendered,
+           otherwise remove |safe if it's plain text #}
+        <div class="notice-content">
+            {# Render content as Markdown #}
+            {{ notice.content | markdown }}
+        </div>
+
+        {# Placeholder for displaying media files later #}
+        {# {% if notice.media_files %}
+            <hr>
+            <h5>Attached Media:</h5>
+            <ul>
+            {% for media in notice.media_files %}
+                <li>{{ media.filename }}</li> {# Link this later #}
+            {# {% endfor %}
+            </ul>
+        {% endif %} #}
+
+    </div>
+</div>
+
+<a href="{{ url_for('notice.notice_list') }}" class="btn btn-outline-secondary">Back to Notices</a>
+
+{# Delete Confirmation Modal (Bootstrap) - Include only if delete button exists #}
+{% if current_user.is_authenticated and (notice.user_id == current_user.id or current_user.is_admin()) %}
+<div class="modal fade" id="deleteNoticeModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to delete the notice titled "{{ notice.title }}"? This action cannot be undone.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        {# Form submits the POST request to the delete route #}
+        <form action="{{ url_for('notice.notice_delete', notice_id=notice.id) }}" method="POST" style="display: inline;">
+            {# CSRF token needed if CSRF protection is enabled globally,
+               though often not strictly required for simple POST actions like this
+               if the main forms have it. Add {{ form.hidden_tag() }} if needed. #}
+            <button type="submit" class="btn btn-danger">Delete Notice</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}

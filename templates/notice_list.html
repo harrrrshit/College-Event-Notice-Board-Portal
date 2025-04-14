@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}Notices - College Portal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Notices</h1>
+    {# Show 'Post New Notice' button only to publishers or admins #}
+    {% if current_user.is_authenticated and (current_user.is_publisher() or current_user.is_admin()) %}
+    <a href="{{ url_for('notice.notice_create') }}" class="btn btn-primary">Post New Notice</a>
+    {% endif %}
+</div>
+
+{# --- Filter Form --- #}
+{# (Keep the existing filter form code here) #}
+<form method="GET" action="{{ url_for('notice.notice_list') }}" class="mb-4 p-3 border rounded bg-light">
+    <h5>Filter Notices</h5>
+    <div class="row g-3 align-items-end">
+        {# Department Filter #}
+        <div class="col-md-4">
+            <label for="department_id" class="form-label">Department</label>
+            <select name="department_id" id="department_id" class="form-select">
+                <option value="0" {% if current_params.department_id == 0 %}selected{% endif %}>-- All Departments --</option>
+                {% for dept in departments %}
+                    <option value="{{ dept.id }}" {% if current_params.department_id == dept.id %}selected{% endif %}>
+                        {{ dept.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        {# Start Date Filter #}
+        <div class="col-md-3">
+            <label for="start_date" class="form-label">Start Date</label>
+            <input type="date" name="start_date" id="start_date" class="form-control"
+                   value="{{ current_params.start_date or '' }}">
+        </div>
+        {# End Date Filter #}
+        <div class="col-md-3">
+            <label for="end_date" class="form-label">End Date</label>
+            <input type="date" name="end_date" id="end_date" class="form-control"
+                   value="{{ current_params.end_date or '' }}">
+        </div>
+        {# Submit Button #}
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-secondary w-100">Filter</button>
+        </div>
+    </div>
+</form>
+{# --- End Filter Form --- #}
+
+{# --- Notices Table with Sorting --- #}
+{% if notices %}
+<table class="table table-hover table-striped">
+    <thead>
+        <tr>
+            {# Title Sort Header #}
+            <th>
+                {% set sort_order_title = 'asc' if current_params.sort_by == 'title' and current_params.sort_order == 'desc' else 'desc' %}
+                <a href="{{ url_for('notice.notice_list', sort_by='title', sort_order=sort_order_title, department_id=current_params.department_id, start_date=current_params.start_date, end_date=current_params.end_date) }}">
+                    Title
+                    {% if current_params.sort_by == 'title' %}
+                        <i class="bi bi-arrow-{{ 'down' if current_params.sort_order == 'desc' else 'up' }}"></i>
+                    {% endif %}
+                </a>
+            </th>
+            {# Content Preview (Not sortable) #}
+            <th>Content Preview</th>
+            {# Department Sort Header #}
+            <th>
+                {% set sort_order_dept = 'asc' if current_params.sort_by == 'department' and current_params.sort_order == 'desc' else 'desc' %}
+                <a href="{{ url_for('notice.notice_list', sort_by='department', sort_order=sort_order_dept, department_id=current_params.department_id, start_date=current_params.start_date, end_date=current_params.end_date) }}">
+                    Department
+                    {% if current_params.sort_by == 'department' %}
+                        <i class="bi bi-arrow-{{ 'down' if current_params.sort_order == 'desc' else 'up' }}"></i>
+                    {% endif %}
+                </a>
+            </th>
+            {# Issue Date Sort Header (Default) #}
+            <th>
+                {% set sort_order_date = 'asc' if current_params.sort_by == 'date' and current_params.sort_order == 'desc' else 'desc' %}
+                <a href="{{ url_for('notice.notice_list', sort_by='date', sort_order=sort_order_date, department_id=current_params.department_id, start_date=current_params.start_date, end_date=current_params.end_date) }}">
+                    Issue Date
+                    {% if current_params.sort_by == 'date' %}
+                        <i class="bi bi-arrow-{{ 'down' if current_params.sort_order == 'desc' else 'up' }}"></i>
+                    {% endif %}
+                </a>
+            </th>
+            {# Publisher (Not sortable by default, could add later) #}
+            <th>Publisher</th>
+            {# Last Editor (Not sortable by default) #}
+            <th>Last Editor</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for notice in notices %}
+        <tr>
+            <td><a href="{{ url_for('notice.notice_detail', notice_id=notice.id) }}">{{ notice.title }}</a></td>
+            <td>{{ notice.content | markdown | striptags | truncate(80) }}</td> {# Strip tags after markdown for preview #}
+            <td>{{ notice.department.name if notice.department else 'N/A' }}</td>
+            <td>{{ notice.issue_date.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>{{ notice.publisher.username }}</td>
+            <td>{{ notice.last_editor.username if notice.last_editor else 'N/A' }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<div class="alert alert-info">No notices match your filter criteria or none have been posted yet.</div>
+{% endif %}
+{# --- End Notices Table --- #}
+
+
+{# --- Pagination Links --- #}
+{# (Keep the existing pagination code here, ensuring it uses current_params) #}
+{% if pagination %}
+<nav aria-label="Notice navigation">
+    <ul class="pagination justify-content-center">
+        {# Previous Page Link #}
+        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('notice.notice_list', page=pagination.prev_num, **current_params) if pagination.has_prev else '#' }}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+        </li>
+        {# Page Number Links #}
+        {% for page_num in pagination.iter_pages(left_edge=1, right_edge=1, left_current=1, right_current=2) %}
+            {% if page_num %}
+                <li class="page-item {% if page_num == pagination.page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('notice.notice_list', page=page_num, **current_params) }}">{{ page_num }}</a>
+                </li>
+            {% else %}
+                <li class="page-item disabled"><span class="page-link">...</span></li>
+            {% endif %}
+        {% endfor %}
+        {# Next Page Link #}
+        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+            <a class="page-link" href="{{ url_for('notice.notice_list', page=pagination.next_num, **current_params) if pagination.has_next else '#' }}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>
+{% endif %}
+{# --- End Pagination Links --- #}
+
+{% endblock %}
