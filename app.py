@@ -58,6 +58,28 @@ def create_app(): # Start of factory pattern
     from routes.events import event_bp   # Import event Blueprint
     app.register_blueprint(event_bp)    # Register it
 
+    # Custom Error Handlers
+    @app.errorhandler(404)
+    def not_found_error(error):
+        """Handles 404 Not Found errors."""
+        # Render a custom 404 template and return the 404 status code
+        return render_template('errors/404.html'), 404
+
+    @app.errorhandler(403)
+    def forbidden_error(error):
+        """Handles 403 Forbidden errors."""
+        # Render a custom 403 template and return the 403 status code
+        return render_template('errors/403.html'), 403
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        """Handles 500 Internal Server errors."""
+        # Important: Rollback the database session in case the error
+        # occurred mid-transaction, leaving the session in a bad state.
+        db.session.rollback()
+        # Render a custom 500 template and return the 500 status code
+        return render_template('errors/500.html'), 500
+
     return app # End of factory pattern (if using create_app function)
 
 # Main execution
