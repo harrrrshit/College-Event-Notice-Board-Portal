@@ -1,93 +1,161 @@
-# College Event - Notice Board Portal
-
-
-
-## Getting started
-
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/harrrrshit_k/college-event-notice-board-portal.git
-git branch -M main
-git push -uf origin main
-```
-
-## Integrate with your tools
-
-- [ ] [Set up project integrations](https://gitlab.com/harrrrshit_k/college-event-notice-board-portal/-/settings/integrations)
-
-## Collaborate with your team
-
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
-
-## Test and Deploy
-
-Use the built-in continuous integration in GitLab.
-
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
-
-***
-
-# Editing this README
-
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
-
-## Suggestions for a good README
-
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
-
-## Name
-Choose a self-explaining name for your project.
+# College Event & Notice Board Portal
 
 ## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+This project is a Flask-based web application designed to serve as a centralized platform for a college community. It provides distinct sections for official announcements (Notices) and upcoming events, aiming to replace scattered communication methods with a reliable, accessible, and filterable source of information.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+Built as a learning project, it demonstrates core web development principles including user authentication, role-based access control, database interactions (CRUD operations), form handling, and dynamic template rendering.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## Features
+
+*   **User Authentication:** Secure user registration and login (supports username or email).
+*   **Role-Based Access Control:**
+    *   **Student:** View notices and events.
+    *   **Publisher:** Create, edit, and delete their own notices and events.
+    *   **Admin:** Full CRUD control over all notices/events, plus potential future user management capabilities.
+*   **Notice Management:**
+    *   Create, view, edit, and delete official notices.
+    *   Markdown support for notice content rendering.
+    *   Tracking of the last editor and edit timestamp.
+*   **Event Management:**
+    *   Create, view, edit, and delete upcoming events.
+    *   Fields for date/time, venue, category, and description.
+    *   Validation to prevent creating events in the past.
+    *   Markdown support for event descriptions.
+    *   Tracking of the last editor and edit timestamp.
+*   **Filtering & Sorting:**
+    *   Filter notice/event lists by Department, Date Range, and Category (for events).
+    *   Sort notice/event lists by various criteria (Date, Title, Department, Category).
+    *   Pagination for long lists.
+*   **Structured Codebase:**
+    *   Application Factory pattern (`create_app`).
+    *   Blueprints for modular routing (main, auth, notices, events).
+    *   Separated files for models (`models.py`), forms (`forms.py`), configuration (`config.py`), decorators (`decorators.py`), and routes (`routes/` package).
+*   **User-Friendly Interface:**
+    *   Uses Bootstrap 5 for styling and responsiveness.
+    *   Custom error pages for 403, 404, 500 errors.
+    *   Flashed messages for user feedback.
+
+## Technology Stack
+
+*   **Language:** Python 3.13
+*   **Framework:** Flask
+*   **Database:** SQLite
+*   **ORM:** Flask-SQLAlchemy
+*   **Migrations:** Flask-Migrate (using Alembic)
+*   **Forms:** Flask-WTF (+ email-validator)
+*   **Authentication:** Flask-Login, Werkzeug (password hashing `pbkdf2:sha256`)
+*   **Markdown Rendering:** Flask-Misaka
+*   **Frontend:** HTML, Jinja2 Templates, Bootstrap 5 (via CDN)
+*   **Version Control:** Git, GitLab
+
+## Setup and Installation
+
+Follow these steps to set up and run the project locally:
+
+1.  **Prerequisites:**
+    *   Python 3.13 or higher installed.
+    *   Git installed.
+
+2.  **Clone the Repository:**
+    ```bash
+    git clone <your-repository-url>
+    cd college-event-notice-board-portal/college_portal
+    ```
+    *(Replace `<your-repository-url>` with the actual URL from GitLab)*
+
+3.  **Create and Activate Virtual Environment:**
+    *   It's highly recommended to use a virtual environment.
+    ```bash
+    # Create the environment (use python3 if python maps to Python 2)
+    python -m venv venv
+
+    # Activate the environment
+    # Windows (Git Bash or CMD/PowerShell might differ slightly):
+    source venv/Scripts/activate
+    # macOS / Linux:
+    source venv/bin/activate
+    ```
+    *You should see `(venv)` at the beginning of your terminal prompt.*
+
+4.  **Install Dependencies:**
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+5.  **Configure the Application:**
+    *   The application requires a configuration file named `config.py` in the `college_portal` directory. This file is ignored by Git for security.
+    *   Copy the example configuration:
+        ```bash
+        # Windows
+        copy config.py.example config.py
+        # macOS / Linux
+        cp config.py.example config.py
+        ```
+    *   **Generate a Secret Key:** Open `config.py` in a text editor. You need to replace the placeholder value for `SECRET_KEY` with a strong, random string. You can generate one using Python:
+        ```bash
+        # Run this in a separate python interpreter session
+        python -c "import secrets; print(secrets.token_hex(24))"
+        ```
+        Copy the output and paste it as the value for `SECRET_KEY` in `config.py`.
+    *   Verify `SQLALCHEMY_DATABASE_URI` points to the desired location (default is `instance/college_board.db` within the project folder).
+
+6.  **Set Up the Database:**
+    *   Apply the database migrations to create the necessary tables:
+        ```bash
+        flask db upgrade
+        ```
+    *   This will create the `instance/college_board.db` file if it doesn't exist.
+
+7.  **Run the Application:**
+    ```bash
+    flask run
+    ```
+    *   The application should now be running on `http://127.0.0.1:5000` (or the address shown in your terminal).
 
 ## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+1.  **Access the Application:** Open your web browser and go to `http://127.0.0.1:5000`.
+2.  **Register/Login:** Use the "Register" link to create an account (default role is 'student'). Use the "Login" link to sign in.
+3.  **Roles:**
+    *   **Admin/Publisher:** To create users with 'admin' or 'publisher' roles, you may need to manually create them or update their roles using `flask shell`:
+        ```bash
+        # Activate venv first
+        flask shell
+        >>> from app import db
+        >>> from models import User
+        # Find user
+        >>> u = User.query.filter_by(username='your_username').first()
+        # Change role
+        >>> u.role = 'admin' # or 'publisher'
+        # Save changes
+        >>> db.session.commit()
+        >>> exit()
+        ```
+    *   **Publishers/Admins** can use the "Post New Notice" and "Post New Event" buttons. They can edit/delete their own content.
+    *   **Admins** can edit/delete *any* content.
+4.  **Viewing:** Browse notices and events using the navigation links. Use the filter and sort options on the list pages.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+## Future Work
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+This project provides a solid foundation for a college portal. Development is ongoing, with plans to incorporate additional advanced features and enhancements to further improve functionality and user experience based on community needs and feedback.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+## Deployment
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+This application can potentially be deployed to platforms like PythonAnywhere. Key considerations for deployment include:
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+*   Setting `DEBUG = False` in production.
+*   Managing the `SECRET_KEY` securely via environment variables on the hosting platform.
+*   Configuring the database connection (SQLite might work on simple platforms, but PostgreSQL/MySQL are recommended for larger scale).
+*   Using a production-grade WSGI server (like Gunicorn or uWSGI) instead of the Flask development server.
+
+*(Placeholder: Live URL if deployed)*
 
 ## License
-For open source projects, say how it is licensed.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+This project is licensed under the **PolyForm Noncommercial License 1.0.0**.
+
+You may use, copy, modify, and distribute the software, but **only for noncommercial purposes**. You may not use the software for commercial purposes, including as part of a service or product you provide to others. Use by specific types of noncommercial organizations (educational, charitable, government, etc.) is permitted for noncommercial purposes.
+
+Please see the [LICENSE](LICENSE) file for the full text of the license.
+
