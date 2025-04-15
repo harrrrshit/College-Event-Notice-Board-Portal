@@ -59,10 +59,9 @@ Follow these steps to set up and run the project locally:
 
 2.  **Clone the Repository:**
     ```bash
-    git clone <your-repository-url>
+    git clone https://gitlab.com/harrrrshit_k/college-event-notice-board-portal
     cd college-event-notice-board-portal/college_portal
     ```
-    *(Replace `<your-repository-url>` with the actual URL from GitLab)*
 
 3.  **Create and Activate Virtual Environment:**
     *   It's highly recommended to use a virtual environment.
