@@ -148,7 +148,7 @@ This application can potentially be deployed to platforms like PythonAnywhere. K
 *   Configuring the database connection (SQLite might work on simple platforms, but PostgreSQL/MySQL are recommended for larger scale).
 *   Using a production-grade WSGI server (like Gunicorn or uWSGI) instead of the Flask development server.
 
-*(Placeholder: Live URL if deployed)*
+`https://catowin002.pythonanywhere.com/`
 
 ## License
 
@@ -157,4 +157,3 @@ This project is licensed under the **PolyForm Noncommercial License 1.0.0**.
 You may use, copy, modify, and distribute the software, but **only for noncommercial purposes**. You may not use the software for commercial purposes, including as part of a service or product you provide to others. Use by specific types of noncommercial organizations (educational, charitable, government, etc.) is permitted for noncommercial purposes.
 
 Please see the [LICENSE](LICENSE) file for the full text of the license.
-
