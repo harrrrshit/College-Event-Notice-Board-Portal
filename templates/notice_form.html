@@ -3,11 +3,12 @@
 {% block title %}{{ title }} - College Portal{% endblock %}
 
 {% block content %}
+<div class="form-panel-container">
     {# Use the legend variable passed from the route #}
     <h1>{{ legend }}</h1>
 
     {# Limit form width #}
-    <form method="POST" action="" novalidate class="col-md-8">
+    <form method="POST" action="" novalidate>
         {{ form.hidden_tag() }} {# CSRF Token #}
 
         {# Title Field #}
@@ -57,4 +58,5 @@
             <a href="{{ url_for('notice.notice_list') }}" class="btn btn-secondary">Cancel</a>
         </div>
     </form>
+</div>
 {% endblock %}

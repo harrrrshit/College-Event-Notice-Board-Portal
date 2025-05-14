@@ -1,0 +1,1573 @@
+html {
+    box-sizing: border-box;
+}
+*, *::before, *::after {
+    box-sizing: inherit;
+}
+
+:root {
+    --font-family: 'Inter', system-ui, sans-serif;
+    --color-bg: #18181b; /* Dark background */
+    --color-surface: #24252c; /* Solid, slightly lighter surface for panels */
+    --color-border: #3a3b43;  /* Subtle border for dark theme */
+    --color-primary: #6366f1;
+    --color-primary-rgb: 99, 102, 241;
+    --color-accent: #14b8a6;
+    --color-accent-rgb: 20, 184, 166;
+    --color-text: #f3f4f6;
+    --color-muted: #a1a1aa;
+    --color-gradient: linear-gradient(135deg, #232526 0%, #414345 100%); /* Kept for body bg */
+    --sidebar-width: 260px;
+    --transition: 0.3s cubic-bezier(.4,0,.2,1);
+    --shadow-panel: 0 6px 20px rgba(0,0,0,0.15); /* Refined shadow for solid panels */
+}
+
+[data-theme="light"] {
+    --color-bg: #f3f4f6; /* Light background */
+    --color-surface: #ffffff; /* Solid white surface */
+    --color-border: #e5e7eb; /* Subtle border for light theme */
+    --color-text: #18181b;
+    --color-muted: #52525b;
+    --color-gradient: linear-gradient(135deg, #e0eafc 0%, #cfdef3 100%);
+    --color-primary-rgb: 99, 102, 241;
+    --color-accent-rgb: 20, 184, 166;
+    --shadow-panel: 0 6px 20px rgba(0,0,0,0.08); /* Refined shadow for light panels */
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family);
+    background: var(--color-bg); /* Changed from gradient to solid color */
+    color: var(--color-text);
+    transition: background var(--transition), color var(--transition);
+    min-height: 100vh;
+}
+
+.glass-panel { /* Renaming to .content-panel or similar could be a future step */
+    background: var(--color-surface);
+    border-radius: 18px;
+    border: 1px solid var(--color-border);
+    box-shadow: var(--shadow-panel);
+    /* backdrop-filter: blur(18px) saturate(1.2); Removed */
+    /* -webkit-backdrop-filter: blur(18px) saturate(1.2); Removed */
+}
+
+.theme-toggle-btn {
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    z-index: 1000;
+    background: var(--color-surface);
+    border: none;
+    border-radius: 18px; /* Consistent with glass-panel -> now content-panel */
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-panel);
+    cursor: pointer;
+    transition: background var(--transition), box-shadow var(--transition);
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem; /* Default spacing */
+}
+
+.theme-toggle-btn:hover {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+/* Sidebar styles */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: var(--sidebar-width);
+    height: 100vh;
+    padding: 2rem 1.2rem 1.2rem 1.2rem;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-surface);
+    box-shadow: var(--shadow-panel);
+    z-index: 900;
+    transition: background var(--transition), box-shadow var(--transition), width var(--transition), padding var(--transition);
+    overflow: hidden;
+}
+
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    margin-bottom: 2rem;
+    flex-shrink: 0;
+}
+
+.logo-icon {
+    font-size: 2.2rem;
+    color: var(--color-primary);
+}
+
+.logo-text {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--color-text);
+}
+
+.sidebar-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    flex-grow: 1;
+    overflow-y: auto;
+    min-height: 0;
+    flex-shrink: 1;
+}
+
+.sidebar-nav a {
+    color: var(--color-text);
+    text-decoration: none;
+    font-size: 1.08rem;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    transition: background var(--transition), color var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+}
+
+.sidebar-nav a:hover, .sidebar-nav a.active {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+/* Sidebar Footer & User Teaser */
+.sidebar-footer {
+    padding-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    width: 100%;
+    flex-shrink: 0;
+}
+
+.user-teaser {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background var(--transition);
+    width: 100%;
+}
+
+.user-teaser:hover {
+    background: rgba(255,255,255,0.06);
+}
+
+.user-teaser i {
+    font-size: 1.3rem;
+    color: var(--color-primary);
+}
+
+.user-teaser span {
+    color: var(--color-text);
+    font-size: 0.95rem;
+}
+
+.user-teaser .role {
+    color: var(--color-primary);
+    font-size: 0.85rem;
+}
+
+.user-teaser .ph-caret-down {
+    margin-left: auto;
+    font-size: 1rem;
+    color: var(--color-muted);
+}
+
+.user-teaser.user-teaser-hidden {
+    display: none !important;
+}
+
+/* Logout Menu */
+.logout-menu {
+    display: none;
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    z-index: 1000;
+    width: 100%;
+    padding: 0;
+    margin-top: 0.5rem;
+}
+
+.logout-menu.show {
+    display: block;
+    animation: fadeIn 0.2s;
+}
+
+.logout-link {
+    display: block;
+    background: #ef4444;
+    color: #fff !important;
+    text-decoration: none;
+    padding: 0.7rem 1rem;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 600;
+    transition: background 0.2s;
+    width: 100%;
+}
+
+.logout-link:hover {
+    background: #d93333;
+    color: #fff !important;
+}
+
+.logout-menu .logout-link i {
+    margin-right: 0.5rem;
+}
+
+.logout-menu .logout-link span {
+    display: inline !important;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 900px) {
+    .sidebar {
+        width: 70px;
+        padding: 1.2rem 0.5rem;
+    }
+    .sidebar-header .logo-text,
+    .sidebar-nav a span,
+    .sidebar-footer .logout-link span {
+      display: none;
+    }
+    main.with-sidebar {
+        margin-left: 70px;
+    }
+
+    .user-teaser {
+        justify-content: center;
+        padding: 0.6rem;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3rem;
+    }
+    .user-teaser i.ph-user-circle {
+        margin: 0;
+    }
+    .user-teaser i.ph-caret-down {
+        display: none;
+    }
+    .user-teaser > span, .user-teaser > span.role {
+        display: none;
+    }
+    .logout-menu {
+    }
+
+    /* Icon-only logout button on tablet/mobile */
+    .logout-menu .logout-link span {
+        display: none !important; /* Hide "Logout" text */
+    }
+    .logout-menu .logout-link i {
+        margin-right: 0; /* Remove margin when text is hidden */
+    }
+}
+
+@media (max-width: 600px) {
+    .sidebar-footer {
+        padding-top: 1rem;
+    }
+    .user-teaser {
+        padding: 0.4rem;
+    }
+    .user-teaser i {
+        font-size: 1.2rem;
+    }
+    .user-teaser > span, .user-teaser > span.role {
+        font-size: 0.7rem;
+    }
+    .logout-menu {
+    }
+    .logout-menu.show {
+        z-index: 1203;
+    }
+}
+
+/* Main content area */
+main.with-sidebar {
+    margin-left: var(--sidebar-width);
+    padding: 2.5rem 2rem 2rem 2rem;
+    min-height: 100vh;
+    transition: margin-left var(--transition);
+}
+
+main {
+    padding: 2.5rem 2rem 2rem 2rem;
+    min-height: 100vh;
+}
+
+/* Page header styling for list pages */
+.page-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem; /* Bootstrap mt-3 equivalent */
+    margin-bottom: 2rem; /* Increased from mb-4 (1.5rem) */
+    flex-wrap: wrap; /* Allow wrapping on small screens */
+    gap: 1rem; /* Add gap for wrapped items */
+}
+
+.page-header-actions h1,
+.page-header-actions h2 {
+    margin-bottom: 0; /* Remove default heading margin if it's part of this flex container */
+    flex-grow: 1; /* Allow title to take available space */
+}
+
+.page-header-actions .btn {
+    margin-left: 1rem; /* Ensure some space if title is long */
+    flex-shrink: 0; /* Prevent button from shrinking too much */
+}
+
+#toast-container {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+/* Hamburger menu button */
+.sidebar-toggle-btn {
+    display: none;
+    position: fixed;
+    top: 1.2rem;
+    left: 1.2rem;
+    z-index: 1201;
+    background: var(--color-surface);
+    border: none;
+    border-radius: 50%;
+    width: 44px;
+    height: 44px;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-panel);
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--color-primary);
+    transition: background var(--transition), color var(--transition);
+}
+
+.sidebar-toggle-btn:hover {
+    background: var(--color-primary);
+    color: #fff;
+}
+
+/* Sidebar overlay for mobile */
+.sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(24,24,27,0.45);
+    z-index: 1200;
+    transition: opacity 0.3s;
+}
+
+/* Responsive: Tablet (compact sidebar) */
+@media (max-width: 900px) {
+    .sidebar {
+        width: 70px;
+        padding: 1.2rem 0.5rem;
+    }
+    .sidebar-header .logo-text,
+    .sidebar-nav a span,
+    .sidebar-footer .logout-link span {
+      display: none;
+    }
+    main.with-sidebar {
+        margin-left: 70px;
+    }
+}
+
+/* Responsive: Mobile (icons only, compact sidebar) */
+@media (max-width: 600px) {
+    .sidebar-toggle-btn {
+        display: flex;
+    }
+    .sidebar {
+        display: none;
+        position: fixed;
+        left: -100%;
+        top: 0;
+        width: 60px;
+        min-width: 60px;
+        max-width: 60px;
+        height: 100vh;
+        padding: 1.2rem 0.3rem;
+        transition: left 0.3s, width 0.3s, padding 0.3s;
+    }
+    .sidebar.mobile-active {
+        display: flex !important;
+        left: 0;
+        z-index: 1202;
+        box-shadow: 0 0 0 9999px rgba(24,24,27,0.45);
+        animation: sidebar-slide-in 0.25s;
+    }
+    @keyframes sidebar-slide-in {
+        from { left: -100%; }
+        to { left: 0; }
+    }
+    .sidebar-header .logo-text,
+    .sidebar-nav a span,
+    .sidebar-footer .logout-link span {
+        display: none;
+    }
+    .sidebar-overlay.active {
+        display: block;
+        opacity: 1;
+    }
+    main.with-sidebar {
+        margin-left: 0;
+    }
+    .sidebar-close-btn {
+        display: inline-flex;
+        background: none;
+        border: none;
+        color: var(--color-muted);
+        font-size: 1.3rem;
+        margin-left: auto;
+        margin-right: 0.2rem;
+        cursor: pointer;
+    }
+}
+.sidebar-close-btn {
+    display: none;
+}
+
+/* Landing page styles */
+.landing-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-gradient), var(--color-bg);
+    padding: 2rem 1rem;
+}
+
+.landing-panel {
+    max-width: 420px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    box-shadow: var(--shadow-panel);
+    border-radius: 22px;
+    text-align: center;
+}
+
+.landing-logo {
+    font-size: 3.5rem;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+}
+
+.landing-title {
+    font-size: 2.1rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 0.2rem;
+    letter-spacing: 0.01em;
+}
+
+.landing-tagline {
+    color: var(--color-muted);
+    font-size: 1.1rem;
+    margin-bottom: 0.5rem;
+}
+
+.landing-illustration img {
+    width: 100%;
+    max-width: 260px;
+    margin: 1.2rem 0;
+    filter: drop-shadow(0 4px 24px rgba(0,0,0,0.10));
+}
+
+.landing-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-top: 1rem;
+}
+
+.landing-actions .btn {
+    font-size: 1.1rem;
+    padding: 0.7rem 2.2rem;
+    border-radius: 12px;
+    font-weight: 600;
+    box-shadow: 0 2px 12px 0 rgba(31, 38, 135, 0.08);
+    transition: background var(--transition), color var(--transition), box-shadow var(--transition);
+}
+
+.landing-actions .btn-primary {
+    background: var(--color-primary);
+    border: none;
+    color: #fff;
+}
+
+.landing-actions .btn-outline-light {
+    background: transparent;
+    border: 2px solid var(--color-primary);
+    color: var(--color-primary);
+}
+
+.landing-actions .btn-primary:hover,
+.landing-actions .btn-outline-light:hover {
+    background: var(--color-accent);
+    color: #fff;
+    border-color: var(--color-accent);
+}
+
+@media (max-width: 600px) {
+    .landing-panel {
+        padding: 1.2rem 0.5rem;
+        max-width: 98vw;
+    }
+    .landing-title {
+        font-size: 1.3rem;
+    }
+    .landing-illustration img {
+        max-width: 180px;
+    }
+}
+
+/* Auth page styles */
+.auth-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-gradient), var(--color-bg);
+    padding: 2rem 1rem;
+}
+
+.auth-panel {
+    max-width: 400px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 2.5rem 2rem 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    box-shadow: var(--shadow-panel);
+    border-radius: 22px;
+    text-align: center;
+}
+
+.auth-logo {
+    font-size: 2.7rem;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+}
+
+.auth-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 0.2rem;
+    letter-spacing: 0.01em;
+}
+
+.auth-tagline {
+    color: var(--color-muted);
+    font-size: 1.05rem;
+    margin-bottom: 0.5rem;
+}
+
+.auth-alt {
+    margin-top: 1.2rem;
+    font-size: 1rem;
+    color: var(--color-muted);
+}
+
+.auth-alt .btn-link {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: underline;
+    margin-left: 0.5rem;
+    padding: 0;
+    background: none;
+    border: none;
+}
+
+@media (max-width: 600px) {
+    .auth-panel {
+        padding: 1.2rem 0.5rem;
+        max-width: 98vw;
+    }
+    .auth-title {
+        font-size: 1.1rem;
+    }
+}
+
+/* Glassy, minimalist input fields */
+.glass-panel .form-control {
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.18);
+    color: var(--color-text);
+    border-radius: 12px;
+    padding: 0.85rem 1.1rem;
+    font-size: 1.08rem;
+    font-family: var(--font-family);
+    box-shadow: 0 2px 12px 0 rgba(31, 38, 135, 0.08);
+    backdrop-filter: blur(8px) saturate(1.2);
+    -webkit-backdrop-filter: blur(8px) saturate(1.2);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.glass-panel .form-control:focus {
+    background: rgba(255,255,255,0.16);
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: 0 4px 24px 0 rgba(99,102,241,0.10);
+    color: var(--color-text);
+}
+
+.glass-panel .form-control::placeholder {
+    color: var(--color-muted);
+    opacity: 1;
+    font-size: 1.02em;
+    font-weight: 400;
+    letter-spacing: 0.01em;
+}
+
+.glass-panel .form-label {
+    color: var(--color-muted);
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.01em;
+}
+
+.glass-panel .form-check-input {
+    background: rgba(255,255,255,0.08);
+    border: 1.5px solid rgba(255,255,255,0.18);
+    border-radius: 6px;
+    width: 1.1em;
+    height: 1.1em;
+    margin-top: 0.2em;
+    accent-color: var(--color-primary);
+}
+
+.glass-panel .form-check-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
+}
+
+.glass-panel .btn-primary {
+    background: var(--color-primary);
+    border: none;
+    color: #fff;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.7rem 2.2rem;
+    box-shadow: 0 2px 12px 0 rgba(31, 38, 135, 0.08);
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+}
+
+.glass-panel .btn-primary:hover {
+    background: var(--color-accent);
+    color: #fff;
+    box-shadow: 0 4px 24px 0 rgba(20,184,166,0.10);
+}
+
+.glass-panel .btn-link {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: underline;
+    margin-left: 0.5rem;
+    padding: 0;
+    background: none;
+    border: none;
+}
+
+.glass-panel .btn-link:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+}
+
+/* === Generic Card Styling (e.g., for Notice/Event Detail) === */
+.card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 18px; /* Consistent with glass-panel */
+    box-shadow: var(--shadow-panel);
+    backdrop-filter: blur(12px) saturate(1.1); /* Slightly less blur than main panels if needed */
+    -webkit-backdrop-filter: blur(12px) saturate(1.1);
+    margin-bottom: 1.5rem; /* Default spacing */
+}
+
+.card-header {
+    background: transparent; /* Make header blend with glassy card */
+    border-bottom: 1px solid var(--color-border);
+    padding: 1rem 1.25rem;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+.card-subtitle {
+    color: var(--color-muted);
+}
+
+/* === Table Styling === */
+.table {
+    border-collapse: separate; /* Allows for border-radius on table */
+    border-spacing: 0;
+    width: 100%;
+    margin-bottom: 1.5rem;
+    /* Table itself can have a subtle glassy background if desired */
+    /* background: rgba(var(--color-surface-rgb), 0.5); */
+    /* border-radius: 12px; */
+}
+
+.table th,
+.table td {
+    padding: 0.85rem 1rem;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--color-border); /* Subtle row separation */
+    text-align: left;
+}
+
+.table thead th {
+    color: var(--color-text);
+    font-weight: 600;
+    border-bottom-width: 2px; /* Slightly thicker border for header */
+    border-color: var(--color-border); /* Ensure border color matches */
+    background: transparent; /* Ensure no default Bootstrap background */
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none; /* Remove bottom border from last row */
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.04); /* Subtle hover for dark theme */
+    color: var(--color-text); /* Ensure text color remains readable */
+}
+
+[data-theme="light"] .table-hover tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.03); /* Subtle hover for light theme */
+}
+
+.table a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+}
+.table a:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+}
+
+/* === General Button Styling === */
+.btn {
+    border-radius: 10px;
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    border: 1.5px solid transparent;
+    font-size: 0.95rem;
+}
+
+.btn-primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+}
+.btn-primary:hover {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(var(--color-accent-rgb, 20,184,166), 0.2);
+}
+
+.btn-secondary {
+    background-color: var(--color-muted); /* Or a different secondary color variable */
+    border-color: var(--color-muted);
+    color: var(--color-bg);
+}
+.btn-secondary:hover {
+    opacity: 0.85;
+    color: var(--color-bg);
+    transform: translateY(-1px);
+}
+[data-theme="light"] .btn-secondary {
+    color: #fff;
+}
+[data-theme="light"] .btn-secondary:hover {
+    color: #fff;
+}
+
+.btn-danger {
+    background-color: #ef4444; /* Consistent red */
+    border-color: #ef4444;
+    color: #fff;
+}
+.btn-danger:hover {
+    background-color: #d93333;
+    border-color: #d93333;
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.btn-outline-secondary {
+    border-color: var(--color-muted);
+    color: var(--color-muted);
+}
+.btn-outline-secondary:hover {
+    background-color: var(--color-muted);
+    color: var(--color-bg);
+    border-color: var(--color-muted);
+}
+[data-theme="light"] .btn-outline-secondary:hover {
+    color: #fff;
+}
+
+.btn-link {
+    color: var(--color-primary);
+    font-weight: 600;
+    text-decoration: none;
+    padding: 0;
+    background: none;
+    border: none;
+}
+.btn-link:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+}
+
+/* === Alert Styling === */
+.alert {
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    /* backdrop-filter: blur(10px) saturate(1.1); Removed */
+    box-shadow: var(--shadow-panel);
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.alert i {
+    font-size: 1.3rem;
+}
+
+.alert-info {
+    border-left: 4px solid var(--color-primary);
+}
+.alert-info i {
+    color: var(--color-primary);
+}
+
+.alert-success {
+    border-left: 4px solid #22c55e;
+}
+.alert-success i {
+    color: #22c55e;
+}
+
+.alert-warning {
+    border-left: 4px solid #fbbf24;
+}
+.alert-warning i {
+    color: #fbbf24;
+}
+
+.alert-danger {
+    border-left: 4px solid #ef4444;
+}
+.alert-danger i {
+    color: #ef4444;
+}
+
+/* === Pagination Styling === */
+.pagination {
+    display: flex; /* Ensure flex display for justify-content to work */
+    justify-content: center;
+    margin-top: 2rem;
+    padding-left: 0; /* Remove default ul padding */
+    list-style: none; /* Remove bullet points */
+    width: 100%; /* Ensure it takes full width to center items */
+}
+
+.page-item {
+    /* Ensure page items are displayed inline or as flex items for horizontal layout */
+    display: inline-block; /* Fallback if flex not working, Bootstrap default is flex */
+}
+
+.page-item .page-link {
+    background-color: transparent;
+    border: 1px solid var(--color-border);
+    color: var(--color-muted);
+    margin: 0 0.25rem;
+    border-radius: 8px;
+    transition: all 0.2s ease-in-out;
+    padding: 0.5rem 0.9rem; /* Added padding: vertical, horizontal */
+    min-width: 38px; /* Ensure a minimum width, especially for single numbers */
+    text-align: center; /* Center text like page numbers */
+    display: inline-block; /* Ensure padding and width apply correctly */
+}
+
+.page-item.active .page-link {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #fff;
+    z-index: 3;
+}
+
+.page-item:not(.disabled) .page-link:hover {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #fff;
+}
+
+.page-item.disabled .page-link {
+    color: var(--color-muted);
+    opacity: 0.6;
+    background-color: transparent;
+    border-color: var(--color-border);
+    cursor: not-allowed; /* Add cursor for disabled state */
+}
+
+/* Visually hide screen reader text in pagination links if only icons are desired */
+.page-link .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* === Table Responsive Wrapper === */
+.table-responsive-wrapper {
+    overflow-x: auto;
+    width: 100%;
+    margin-bottom: 1.5rem; /* Consistent with table margin */
+    /* Optional: Add a subtle shadow or indicator if it scrolls */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on touch devices */
+    /* Add a border or background to the wrapper if the table itself doesn't have one */
+    /* background: var(--color-surface); */
+    /* border: 1px solid var(--color-glass-border); */
+    /* border-radius: 12px; */ /* If matching table style */
+}
+
+/* Ensure form elements look good within the general context too, not just inside .glass-panel */
+.form-label {
+    color: var(--color-muted);
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.01em;
+}
+
+.form-control,
+.form-select {
+    background: rgba(255,255,255,0.07);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    color: var(--color-text);
+    border-radius: 10px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    font-family: var(--font-family);
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    width: 100%;
+    display: block;
+}
+
+.form-control:focus,
+.form-select:focus {
+    background: rgba(255,255,255,0.12);
+    border-color: var(--color-primary);
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(var(--color-primary-rgb, 99,102,241), 0.2);
+    color: var(--color-text);
+}
+
+.form-control::placeholder {
+    color: var(--color-muted);
+    opacity: 0.8;
+}
+
+.form-check-input {
+    background: rgba(255,255,255,0.07);
+    border: 1.5px solid rgba(255,255,255,0.15);
+    border-radius: 4px;
+    accent-color: var(--color-primary);
+}
+
+.form-check-input:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--color-primary-rgb, 99,102,241), 0.2);
+}
+
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23a1a1aa' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.9rem center;
+    background-size: 16px 12px;
+    padding-right: 2.5rem;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+}
+
+/* Light mode select arrow needs explicit override - more specific selector */
+[data-theme="light"] .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2352525b' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+}
+
+/* More specific selector for better browser compatibility */
+select.form-select::-ms-expand {
+    display: none !important;
+}
+
+/* More aggressive styling for select options */
+select.form-select {
+    background-color: var(--color-surface) !important;
+    color: var(--color-text) !important;
+}
+
+/* Force all options to inherit background and text color */
+select.form-select option {
+    background-color: var(--color-surface) !important;
+    color: var(--color-text) !important;
+    padding: 8px !important;
+}
+
+/* For Firefox - special selector that works in Firefox */
+@-moz-document url-prefix() {
+    select.form-select {
+        background-color: var(--color-surface) !important;
+        color: var(--color-text) !important;
+    }
+    select.form-select option {
+        background-color: var(--color-surface) !important;
+        color: var(--color-text) !important;
+    }
+}
+
+/* For Webkit browsers (Chrome, Safari) */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    select.form-select {
+        background-color: var(--color-surface) !important;
+        color: var(--color-text) !important;
+    }
+    select.form-select option {
+        background-color: var(--color-surface) !important;
+        color: var(--color-text) !important;
+    }
+}
+
+/* === Form Panel Container (for New/Edit Notice/Event pages) === */
+.form-panel-container {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 18px;
+    box-shadow: var(--shadow-panel);
+    /* backdrop-filter: blur(12px) saturate(1.1); Removed */
+    padding: 2rem 2.5rem; /* Adjust padding as needed */
+    margin: 2rem auto; /* Center it with some margin */
+    max-width: 800px; /* Or your preferred max-width */
+    width: 100%; /* Ensure it uses available width up to max-width */
+}
+
+.form-panel-container h1 {
+    font-size: 1.8rem; /* Adjust title size within form panel */
+    margin-bottom: 1.5rem;
+    color: var(--color-text);
+    text-align: center;
+}
+
+/* Increase spacing between form fields in form panels */
+.form-panel-container .form-label {
+    margin-top: 0.75rem;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+}
+
+.form-panel-container .mb-3 {
+    margin-bottom: 1.5rem !important;
+}
+
+/* === Filter Panel Styling (for Notice/Event Lists) === */
+.form-filter-panel {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px; /* Slightly smaller radius than main panels */
+    box-shadow: var(--shadow-panel);
+    padding: 1.5rem;
+    margin-top: 1.5rem; /* Added specific top margin */
+    margin-bottom: 2rem;
+    width: 100%; /* Ensure it takes full width to allow internal grid to work */
+}
+
+.form-filter-panel h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--color-text);
+}
+
+/* Add this to make form groups inside filter panel behave like flex items */
+.form-filter-panel .row > div, /* Target Bootstrap columns directly */
+.form-filter-panel .form-group /* Target generic form groups if used */ {
+    display: flex;
+    flex-direction: column; /* Keep label and input stacked */
+    margin-bottom: 1rem; /* Add some spacing between filter items */
+}
+
+.form-filter-panel .row {
+    display: flex;
+    flex-wrap: wrap; /* Allow filters to wrap on smaller screens */
+    align-items: flex-end; /* Align items to the bottom (useful if some labels are taller) */
+    gap: 1rem; /* Spacing between filter items */
+}
+
+.form-filter-panel .form-label {
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.form-filter-panel .btn-secondary {
+    background-color: var(--color-primary); /* Make filter button primary */
+    border-color: var(--color-primary);
+    color: #fff;
+}
+.form-filter-panel .btn-secondary:hover {
+    background-color: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #fff;
+}
+
+/* Specific adjustments for select in filter panel if needed */
+.form-filter-panel .form-select {
+    padding-top: 0.55rem; /* Adjust padding for filter selects if they look too tall */
+    padding-bottom: 0.55rem;
+    font-size: 0.95rem;
+}
+
+/* Style for the clear filter button */
+.form-filter-panel .btn-outline-secondary {
+    border-color: var(--color-border); /* Subtler border */
+    color: var(--color-muted);
+    background-color: transparent;
+}
+.form-filter-panel .btn-outline-secondary:hover {
+    background-color: var(--color-surface); /* Use surface for hover */
+    border-color: var(--color-muted);
+    color: var(--color-text);
+}
+
+[data-theme="light"] .form-filter-panel .btn-outline-secondary:hover {
+    color: var(--color-text);
+}
+
+.btn.btn-sm {
+    padding: 0.35rem 0.7rem; /* Adjust padding for btn-sm */
+    font-size: 0.85rem;
+}
+
+/* Dashboard styles */
+.dashboard-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 70vh;
+    padding: 2rem 0;
+}
+
+.dashboard-panel {
+    max-width: 700px;
+    width: 100%;
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+    box-shadow: var(--shadow-panel);
+    border-radius: 22px;
+    text-align: center;
+}
+
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    font-size: 2.2rem;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+}
+
+.dashboard-header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0;
+}
+
+.dashboard-tagline {
+    color: var(--color-muted);
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+}
+
+.dashboard-cards {
+    display: flex;
+    gap: 2rem;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.dashboard-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    backdrop-filter: blur(10px) saturate(1.1);
+    -webkit-backdrop-filter: blur(10px) saturate(1.1);
+    border-radius: 16px;
+    box-shadow: var(--shadow-panel);
+    padding: 1.2rem 1.1rem;
+    min-width: 220px;
+    flex: 1 1 220px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+}
+
+.dashboard-card i {
+    font-size: 1.7rem;
+    color: var(--color-primary);
+    margin-bottom: 0.2rem;
+}
+
+.dashboard-card h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: var(--color-text);
+}
+
+.dashboard-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+}
+
+.dashboard-card li {
+    margin-bottom: 0.4rem;
+    font-size: 1.01rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.dashboard-card a {
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.dashboard-card a:hover {
+    color: var(--color-accent);
+    text-decoration: underline;
+}
+
+.dashboard-date {
+    color: var(--color-muted);
+    font-size: 0.95em;
+    margin-left: 0.7em;
+}
+
+.dashboard-empty {
+    color: var(--color-muted);
+    font-style: italic;
+}
+
+@media (max-width: 900px) {
+    .dashboard-cards {
+        flex-direction: column;
+        gap: 1.2rem;
+    }
+}
+
+/* Toast notifications */
+#toast-container {
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.toast {
+    min-width: 240px;
+    max-width: 340px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    border-radius: 14px;
+    box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.12);
+    padding: 1rem 1.2rem 1rem 1rem;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    font-size: 1.05rem;
+    position: relative;
+    border-left: 5px solid var(--color-primary);
+    animation: toast-in 0.25s;
+    backdrop-filter: blur(10px) saturate(1.1);
+    -webkit-backdrop-filter: blur(10px) saturate(1.1);
+}
+
+.toast.toast-success { border-left-color: #22c55e; }
+.toast.toast-info    { border-left-color: var(--color-primary); }
+.toast.toast-warning { border-left-color: #fbbf24; }
+.toast.toast-danger  { border-left-color: #ef4444; }
+
+.toast .toast-icon {
+    font-size: 1.4rem;
+    margin-top: 0.1rem;
+}
+
+.toast .toast-close {
+    position: absolute;
+    top: 0.7rem;
+    right: 0.7rem;
+    background: none;
+    border: none;
+    color: var(--color-muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    opacity: 0.7;
+    transition: color 0.2s, opacity 0.2s;
+}
+.toast .toast-close:hover {
+    color: var(--color-primary);
+    opacity: 1;
+}
+
+@media (max-width: 600px) {
+    #toast-container {
+        top: auto;
+        bottom: 1.2rem;
+        right: 1.2rem;
+        left: 1.2rem;
+        align-items: flex-end;
+    }
+    .toast {
+        min-width: 0;
+        max-width: 98vw;
+        font-size: 0.98rem;
+    }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* === Core Bootstrap Modal Base (Ensure it's hidden and acts as overlay) === */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 1055; /* Standard Bootstrap z-index for modals */
+    display: none; /* Hidden by default */
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+    overflow-y: auto;
+    outline: 0;
+    background-color: rgba(24, 24, 27, 0.65); /* Darker backdrop, adjust as needed */
+}
+
+.modal.fade .modal-dialog {
+    transition: transform .3s ease-out;
+    transform: translate(0, -50px); /* Initial state for fade-in-from-top */
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .modal.fade .modal-dialog {
+        transition: none;
+    }
+}
+
+.modal.show .modal-dialog {
+    transform: none; /* Final state for fade-in */
+}
+
+/* When modal is shown, it gets display: block from Bootstrap JS */
+.modal.show {
+    display: block;
+}
+
+.modal-dialog {
+    position: relative;
+    width: auto;
+    margin: 0.5rem;
+    pointer-events: none; /* Allow clicks to pass through backdrop */
+}
+
+@media (min-width: 576px) {
+    .modal-dialog {
+        max-width: 500px; /* Default Bootstrap modal width */
+        margin: 1.75rem auto; /* Centering for larger screens */
+    }
+}
+/* End of Core Bootstrap Modal Base */
+
+/* === Modal Styling (Your existing styles) === */
+.modal-content {
+    background-color: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 16px; /* Consistent with panels */
+    box-shadow: var(--shadow-panel);
+    /* backdrop-filter: blur(18px) saturate(1.2); Removed */
+    color: var(--color-text);
+}
+
+.modal-header {
+    border-bottom: 1px solid var(--color-border);
+    padding: 1rem 1.5rem;
+}
+
+.modal-header .btn-close {
+    filter: invert(0%) grayscale(100%) brightness(200%); /* Make close button visible on dark bg */
+    opacity: 0.7;
+}
+.modal-header .btn-close:hover {
+    opacity: 1;
+}
+[data-theme="light"] .modal-header .btn-close {
+    filter: none; /* Reset for light theme */
+}
+
+.modal-title {
+    font-weight: 600;
+    color: var(--color-text);
+}
+
+.modal-body {
+    padding: 1.5rem;
+    color: var(--color-text);
+}
+
+.modal-footer {
+    border-top: 1px solid var(--color-border);
+    padding: 1rem 1.5rem;
+    display: flex; /* Ensure proper button alignment */
+    justify-content: flex-end; /* Align buttons to the right */
+}
+
+/* Reset all default browser select styling */
+select {
+    /* Reset all appearance properties */
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    -ms-appearance: none !important;
+    appearance: none !important;
+    /* Hide the default arrow in IE */
+    &::-ms-expand {
+        display: none !important;
+    }
+}
+
+/* Standard select styling */
+.form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23a1a1aa' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat !important;
+    background-position: right 0.9rem center !important; /* Adjusted position */
+    background-size: 16px 12px !important;
+    padding-right: 2.5rem !important; /* Ensure space for arrow */
+}
+
+/* Light mode select arrow needs explicit override - more specific selector */
+[data-theme="light"] .form-select {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%2352525b' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* More aggressive styling for select options */
+select.form-select option {
+    background-color: var(--color-surface) !important;
+    color: var(--color-text) !important;
+    padding: 8px !important;
+}
+
+/* For Firefox - special selector that works in Firefox */
+@-moz-document url-prefix() {
+    select.form-select {
+        background-color: var(--color-surface) !important;
+        color: var(--color-text) !important;
+    }
+    select.form-select option {
+        background-color: var(--color-surface) !important;
+        color: var(--color-text) !important;
+    }
+}
+
+/* For Webkit browsers (Chrome, Safari) */
+@media screen and (-webkit-min-device-pixel-ratio:0) {
+    select.form-select {
+        background-color: var(--color-surface) !important;
+        color: var(--color-text) !important;
+    }
+    select.form-select option {
+        background-color: var(--color-surface) !important;
+        color: var(--color-text) !important;
+    }
+}

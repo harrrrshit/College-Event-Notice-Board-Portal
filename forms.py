@@ -43,7 +43,7 @@ class RegistrationForm(FlaskForm):
 # Define the notice form structure and validation rules
 class NoticeForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired(), Length(max=200)])
-    content = TextAreaField('Content', validators=[DataRequired()])
+    content = TextAreaField('Content', validators=[DataRequired()], render_kw={"rows": 7})
     # Optional: Department Selection
     # coerce=int ensures the value submitted is treated as an integer
     department_id = SelectField('Department (Optional)', coerce=int)
@@ -62,7 +62,7 @@ class NoticeForm(FlaskForm):
 # Define the event form structure and validation rules
 class EventForm(FlaskForm):
     title = StringField('Event Title', validators=[DataRequired(), Length(max=200)])
-    description = TextAreaField('Description', validators=[DataRequired()])
+    description = TextAreaField('Description', validators=[DataRequired()], render_kw={"rows": 10})
     # DateTimeField for date and time input.
     # format='%Y-%m-%dT%H:%M' matches the standard HTML datetime-local input format.
     event_date = DateTimeField('Event Date and Time', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])

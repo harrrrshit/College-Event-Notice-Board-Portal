@@ -11,3 +11,6 @@ venv/
 
 # Config file (contains secret key, etc.)
 config.py
+
+# Project Structure
+project_structure.txt

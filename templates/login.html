@@ -1,47 +1,43 @@
-{% extends "base.html" %} {# Use base.html layout #}
+{% extends "base.html" %}
 
-{# Set the page title #}
-{% block title %}{{ title }} - College Portal{% endblock %}
+{% block title %}Login - College Portal{% endblock %}
 
-{# Main content for the login page #}
 {% block content %}
-    <h1>{{ title }}</h1>
-
-    {# Limit form width on medium screens and up #}
-    <form action="" method="post" novalidate class="col-md-6">
-        {{ form.hidden_tag() }} <!-- CSRF protection token -->
-
-        {# Username or Email Field with Bootstrap styling #}
-        <div class="mb-3"> {# Margin bottom 3 #}
-            {{ form.username_or_email.label(class="form-label") }} {# Bootstrap label style #}
-            {# Bootstrap input style #}
-            {{ form.username_or_email(class="form-control", size=32) }}
-            {# Display errors #}
-            {% for error in form.username_or_email.errors %}
-            <span class="text-danger small">[{{ error }}]</span> {# Bootstrap error text style #}
-            {% endfor %}
+<div class="auth-container">
+    <div class="glass-panel auth-panel">
+        <div class="auth-logo">
+            <i class="ph ph-graduation-cap"></i>
         </div>
-
-        {# Password Field with Bootstrap styling #}
-        <div class="mb-3">
-            {{ form.password.label(class="form-label") }}
-            {{ form.password(class="form-control", size=32) }}
-            {% for error in form.password.errors %}
-            <span class="text-danger small">[{{ error }}]</span>
-            {% endfor %}
+        <h2 class="auth-title">Sign In</h2>
+        <p class="auth-tagline">Access your college dashboard</p>
+        <form action="" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            <div class="mb-3">
+                {{ form.username_or_email.label(class="form-label") }}
+                {{ form.username_or_email(class="form-control", size=32) }}
+                {% for error in form.username_or_email.errors %}
+                <span class="text-danger small">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+            <div class="mb-3">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control", size=32) }}
+                {% for error in form.password.errors %}
+                <span class="text-danger small">[{{ error }}]</span>
+                {% endfor %}
+            </div>
+            <div class="mb-3 form-check">
+                {{ form.remember(class="form-check-input") }}
+                {{ form.remember.label(class="form-check-label") }}
+            </div>
+            <div class="mb-3 d-grid">
+                {{ form.submit(class="btn btn-primary btn-lg") }}
+            </div>
+        </form>
+        <div class="auth-alt">
+            <span>New user?</span>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-link">Register</a>
         </div>
-
-        {# Remember Me Checkbox with Bootstrap styling #}
-        <div class="mb-3 form-check">
-            {{ form.remember(class="form-check-input") }}
-            {{ form.remember.label(class="form-check-label") }}
-        </div>
-
-        {# Submit Button with Bootstrap styling #}
-        <div class="mb-3">
-            {{ form.submit(class="btn btn-primary") }} {# Bootstrap button style #}
-        </div>
-    </form>
-
-    <p>New User? <a href="{{ url_for('auth.register') }}">Click to Register!</a></p>
-{% endblock %} {# End of content block #}
+    </div>
+</div>
+{% endblock %}

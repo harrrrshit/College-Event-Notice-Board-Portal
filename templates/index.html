@@ -1,17 +1,55 @@
-{% extends "base.html" %} {# Tells Jinja to use base.html as the layout #}
+{% extends "base.html" %}
 
-{# Define the content for the title block in base.html #}
-{% block title %}Home - College Portal{% endblock %}
+{% block title %}Dashboard - College Portal{% endblock %}
 
-{# Define the content for the content block in base.html #}
 {% block content %}
-    {# Use Bootstrap display heading class #}
-    <h1 class="display-5">{{ heading }}</h1>
-    <p class="lead">This is the homepage of the College Event & Notice Board Portal.</p>
-    {# Add more homepage-specific content here later #}
-
-    {# Example: Show username if logged in #}
-    {% if current_user.is_authenticated %}
-        <p>You are logged in as {{ current_user.username }}.</p>
-    {% endif %}
-{% endblock %} {# End of the content block #}
+<div class="dashboard-container">
+    <div class="glass-panel dashboard-panel">
+        <div class="dashboard-header">
+            <i class="ph ph-graduation-cap"></i>
+            <h1>Welcome, {{ current_user.username }}!</h1>
+        </div>
+        <p class="dashboard-tagline">
+            Here’s what’s happening in your college community.
+        </p>
+        <div class="dashboard-cards">
+            <div class="dashboard-card">
+                <i class="ph ph-bell"></i>
+                <div>
+                    <h3>Recent Notices</h3>
+                    <ul>
+                        {% for notice in recent_notices %}
+                        <li>
+                            <a href="{{ url_for('notice.notice_detail', notice_id=notice.id) }}">
+                                {{ notice.title }}
+                            </a>
+                            <span class="dashboard-date">{{ notice.issue_date.strftime('%b %d, %Y') }}</span>
+                        </li>
+                        {% else %}
+                        <li class="dashboard-empty">No recent notices.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="dashboard-card">
+                <i class="ph ph-calendar-blank"></i>
+                <div>
+                    <h3>Upcoming Events</h3>
+                    <ul>
+                        {% for event in upcoming_events %}
+                        <li>
+                            <a href="{{ url_for('event.event_detail', event_id=event.id) }}">
+                                {{ event.title }}
+                            </a>
+                            <span class="dashboard-date">{{ event.event_date.strftime('%b %d, %Y') }}</span>
+                        </li>
+                        {% else %}
+                        <li class="dashboard-empty">No upcoming events.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

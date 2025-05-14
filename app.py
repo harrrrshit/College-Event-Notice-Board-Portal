@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy # Added import
 from flask_migrate import Migrate # Added import
 from flask_login import LoginManager, current_user, login_required # Add current_user, login_required
 from flask_misaka import Misaka
+from flask_wtf.csrf import CSRFProtect # Import CSRFProtect
 
 # Create Extension Instances (BEFORE app creation)
 # We create them here but don't associate them with an app yet
@@ -19,6 +20,9 @@ login_manager.login_view = 'login' # Name of the login route function
 login_manager.login_message = 'Please log in to access this page.'
 login_manager.login_message_category = 'info' # Bootstrap category for styling
 
+# Initialize CSRFProtect, will be configured with the app in create_app
+csrf = CSRFProtect()
+
 # Application Factory Function (Optional but good practice)
 # Or just create the app directly if you prefer for now
 def create_app(): # Start of factory pattern
@@ -33,6 +37,7 @@ def create_app(): # Start of factory pattern
     migrate.init_app(app, db) # Added initialization # Migrate needs both app and db
     login_manager.init_app(app) # Added initialization # Configure it for our app
     Misaka(app) # Initialize Markdown rendering # Using default settings is usually fine
+    csrf.init_app(app) # Initialize CSRF protection for the app
 
     # Import models AFTER db and login_manager have been initialized
     # This import order is now safe because db exists before models.py tries to import it

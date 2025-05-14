@@ -3,7 +3,7 @@
 {% block title %}Notices - College Portal{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 mt-3">
     <h1>Notices</h1>
     {# Show 'Post New Notice' button only to publishers or admins #}
     {% if current_user.is_authenticated and (current_user.is_publisher() or current_user.is_admin()) %}
@@ -12,12 +12,11 @@
 </div>
 
 {# --- Filter Form --- #}
-{# (Keep the existing filter form code here) #}
-<form method="GET" action="{{ url_for('notice.notice_list') }}" class="mb-4 p-3 border rounded bg-light">
+<form method="GET" action="{{ url_for('notice.notice_list') }}" class="form-filter-panel">
     <h5>Filter Notices</h5>
     <div class="row g-3 align-items-end">
         {# Department Filter #}
-        <div class="col-md-4">
+        <div class="col-md-3">
             <label for="department_id" class="form-label">Department</label>
             <select name="department_id" id="department_id" class="form-select">
                 <option value="0" {% if current_params.department_id == 0 %}selected{% endif %}>-- All Departments --</option>
@@ -44,13 +43,20 @@
         <div class="col-md-2">
             <button type="submit" class="btn btn-secondary w-100">Filter</button>
         </div>
+        {# Clear Filter Button #}
+        <div class="col-md-1 d-flex align-items-end">
+            <a href="{{ url_for('notice.notice_list') }}" id="clear-filter-btn" class="btn btn-outline-secondary w-100 btn-sm" title="Clear Filters">
+                <i class="ph ph-x"></i> Clear
+            </a>
+        </div>
     </div>
 </form>
 {# --- End Filter Form --- #}
 
 {# --- Notices Table with Sorting --- #}
 {% if notices %}
-<table class="table table-hover table-striped">
+<div class="table-responsive-wrapper">
+    <table class="table table-hover table-striped">
     <thead>
         <tr>
             {# Title Sort Header #}
@@ -59,7 +65,7 @@
                 <a href="{{ url_for('notice.notice_list', sort_by='title', sort_order=sort_order_title, department_id=current_params.department_id, start_date=current_params.start_date, end_date=current_params.end_date) }}">
                     Title
                     {% if current_params.sort_by == 'title' %}
-                        <i class="bi bi-arrow-{{ 'down' if current_params.sort_order == 'desc' else 'up' }}"></i>
+                        <i class="ph ph-{{ 'sort-descending' if current_params.sort_order == 'desc' else 'sort-ascending' }}"></i>
                     {% endif %}
                 </a>
             </th>
@@ -71,7 +77,7 @@
                 <a href="{{ url_for('notice.notice_list', sort_by='department', sort_order=sort_order_dept, department_id=current_params.department_id, start_date=current_params.start_date, end_date=current_params.end_date) }}">
                     Department
                     {% if current_params.sort_by == 'department' %}
-                        <i class="bi bi-arrow-{{ 'down' if current_params.sort_order == 'desc' else 'up' }}"></i>
+                        <i class="ph ph-{{ 'sort-descending' if current_params.sort_order == 'desc' else 'sort-ascending' }}"></i>
                     {% endif %}
                 </a>
             </th>
@@ -81,7 +87,7 @@
                 <a href="{{ url_for('notice.notice_list', sort_by='date', sort_order=sort_order_date, department_id=current_params.department_id, start_date=current_params.start_date, end_date=current_params.end_date) }}">
                     Issue Date
                     {% if current_params.sort_by == 'date' %}
-                        <i class="bi bi-arrow-{{ 'down' if current_params.sort_order == 'desc' else 'up' }}"></i>
+                        <i class="ph ph-{{ 'sort-descending' if current_params.sort_order == 'desc' else 'sort-ascending' }}"></i>
                     {% endif %}
                 </a>
             </th>
@@ -104,6 +110,7 @@
         {% endfor %}
     </tbody>
 </table>
+</div>
 {% else %}
 <div class="alert alert-info">No notices match your filter criteria or none have been posted yet.</div>
 {% endif %}
